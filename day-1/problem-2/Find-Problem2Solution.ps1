@@ -15,14 +15,14 @@
     .NOTES
         Author: Richard J. Breiten
         Version: 7.0-00001
-        Created: 2020-12-04
+        Created: 2020-12-06
         Modified: 
 #>
 
 [CmdletBinding()]
 param (
     #TODO: Implement iwr for programmatic pull of supplied files?
-    [Parameter()]$suppliedNumbers = ".\suppliedNumbers.txt"
+    [Parameter()]$suppliedNumbers = "..\problem-1\suppliedNumbers.txt"
 )
 
 begin {
@@ -33,12 +33,14 @@ begin {
 process {
     foreach ($firstNumber in $suppliedNumbers) {
         foreach ($secondNumber in $suppliedNumbers) {
-            if ($secondNumber -ne $firstNumber) {
-                $summation = [int]$secondNumber + [int]$firstNumber
-                if ($summation -eq "2020") {
-                    $solution = [int]$secondNumber * [int]$firstNumber
-                    Write-Output "solution: $solution"
-                    return
+            foreach ($thirdNumber in $suppliedNumbers) {
+                if ($thirdNumber -ne $firstNumber -and $secondNumber) {
+                    $summation = [int]$thirdNumber + [int]$secondNumber + [int]$firstNumber
+                    if ($summation -eq "2020") {
+                        $solution = [int]$thirdNumber * [int]$secondNumber * [int]$firstNumber
+                        Write-Output "solution: $solution"
+                        return
+                    }    
                 }
             }
         }
