@@ -10,7 +10,10 @@
         Mandatory parameter of numbers supplied via text format from AoC website at https://adventofcode.com/2020/day/2/input
 
     .EXAMPLE
-        Solve-D1Problem1.ps1 -suppliedNumbers suppliedNumbers.txt
+        Get-MatchingPasswords.ps1
+
+    .EXAMPLE
+        Get-MatchingPasswords.ps1 -suppliedInputs fubar.txt
     
     .NOTES
         Author: Richard J. Breiten
