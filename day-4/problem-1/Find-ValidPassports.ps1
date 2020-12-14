@@ -43,18 +43,18 @@ begin {
     $validPassport = 0
 }
 
-process {
-    $suppliedPassports = $suppliedPassports.Replace( "`n`n",";" ).Replace( "`n"," " )
-    $suppliedPassports.split( ";") | ForEach-Object {
-        $transientData = @{}
-        $_.Split( " " ) | ForEach-Object {
-            $data = $_.Split( ":" )
-            $transientData.Add( $data[0],$data[1] )
-        }
-        $transientData
-    }
-    
+process { 
     foreach ( $passport in $suppliedPassports ) {
+        $passport = $passport.Replace("`n`n", ";").Replace("`n"," ")
+        $passport.split( ";" ) | ForEach-Object {
+            $transientData = @{}
+            $_.Split( " " ) | ForEach-Object {
+                $data = $_.Split( ":" )
+                $transientData.Add( $data[0],$data[1] )
+            }
+            return $transientData
+        }
+    
         $missingParameters = @($requiredParameters.Where( {$transientData.Keys -notcontains $_ } ))
         if ($missingParameters.Count -eq 0) {
             $validPassport += 1
