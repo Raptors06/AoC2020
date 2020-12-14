@@ -40,23 +40,32 @@ begin {
         'pid'
         'cid'
     )
-
     $validPassport = 0
 }
 
 process {
-    foreach ( $passport in $suppliedPassports ) {
-        $passport = $passport.Replace("`n`n",";").Replace("`n"," ")
-        
-        foreach ($field in $passport) {
-            if ($field.Count -eq 0)
+    $suppliedPassports = $suppliedPassports.Replace( "`n`n",";" ).Replace( "`n"," " )
+    $suppliedPassports.split( ";") | ForEach-Object {
+        $transientData = @{}
+        $_.Split( " " ) | ForEach-Object {
+            $data = $_.Split( ":" )
+            $transientData.Add( $data[0],$data[1] )
         }
+        $transientData
+    }
+    
+    foreach ( $passport in $suppliedPassports ) {
+        $missingParameters = @($requiredParameters.Where( {$transientData.Keys -notcontains $_ } ))
+        if ($missingParameters.Count -eq 0) {
+            $validPassport += 1
+        } elseif ($missingParameters.Count -eq 1 -and $missingParameters -eq 'cid') {
+            $validPassport += 1
         }
     }
 }
 
 end {
-    Write-Output $TreesinPath
+    Write-Output $validPassport
     $endTimestamp = (Get-Date -Format HH:mm:ss.fff)
     "$(New-TimeSpan $startTimestamp $endTimestamp)"
 }
