@@ -30,7 +30,7 @@ param (
 
 begin {
     $startTimestamp = (Get-Date -Format HH:mm:ss.fff)
-    $suppliedPassports = Get-Content -Path $suppliedPassports -Raw
+    $suppliedPassports = (Get-Content -Path $suppliedPassports -Raw) -split '(\r?\n){2}' | Where-Object { $_.Trim() }
     $requiredParameters = @(
         'byr'
         'iyr'
@@ -43,29 +43,29 @@ begin {
     $validPassport = 0
 }
 
-process { 
+process {
     foreach ( $passport in $suppliedPassports ) {
-        $passport = $passport.Replace("`n`n", ";").Replace("`n"," ")
-        $passport.split( ";" ) | ForEach-Object {
-            $transientData = @{}
-            $_.Split( " " ) | ForEach-Object {
-                $data = $_.Split( ":" )
-                $transientData.Add( $data[0],$data[1] )
-            }
-            return $transientData
-        }
+        $passport = $passport -split ' ' -replace ':', '=' | Out-String | Convertfrom-StringData #.Replace("`n`n", ";").Replace("`n"," ")
+        # $passport.split( "=" ) | ForEach-Object {
+        #     $transientData = @{}
+        #     $_.Split( " " ) | ForEach-Object {
+        #         $data = $_.Split( ":" )
+        #         $transientData.Add( $data[0],$data[1] )
+        #     }
+        #     $transientData | Out-Null
+        # }
     
-        $missingParameters = @($requiredParameters.Where( {$transientData.Keys -notcontains $_ } ))
+        $missingParameters = @($requiredParameters.Where( {$passport.Keys -notcontains $_ } ))
         if ($missingParameters.Count -eq 0) {
             $validPassport += 1
-        } elseif ($missingParameters.Count -eq 1 -and $missingParameters -eq 'cid') {
+        } elseif (($missingParameters.Count -eq 1) -and ($passport.ContainsKey('cid'))) {
             $validPassport += 1
         }
     }
 }
 
 end {
-    Write-Output $validPassport
+    Write-Output "Number of valid passports: $validPassport"
     $endTimestamp = (Get-Date -Format HH:mm:ss.fff)
     "$(New-TimeSpan $startTimestamp $endTimestamp)"
 }
